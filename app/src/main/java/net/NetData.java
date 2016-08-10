@@ -6,6 +6,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import net.data.ArticleInfo;
+import net.data.ArticleInfoList;
 import net.data.Contest;
 import net.data.ContestInfoList;
 import net.data.ProblemInfo;
@@ -60,6 +62,28 @@ public class NetData {
                     @Override
                     public void run() {
                         viewHandler.showProblemList(problemInfoList);
+                    }
+                });
+
+            }
+        }).start();
+    }
+    public void getAriticleList(final int page, final ViewHandler viewHandler){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String p = "";
+                try {
+                    p = new JSONObject().put("currentPage", page).put("orderAsc", "false").put("orderFields", "id").toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String result = NetWorkTool.post(problemListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                final ArticleInfoList articleInfoList = new ArticleInfoList(result);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewHandler.showArticleList(articleInfoList);
                     }
                 });
 
