@@ -1,5 +1,7 @@
 package net.data;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +16,7 @@ public class ArticleInfoList {
     public boolean result = false;
     public PageInfo pageInfo;
     public ArticleInfoList(String json){
+        Log.d("TAG", "ArticleInfoList: " + json);
         if (json == null) {
             return;
         }
