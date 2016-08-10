@@ -1,6 +1,8 @@
 package leiguowei.qk.com.cdoj_2;
 
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ListFragment;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.app.Fragment;
@@ -8,7 +10,6 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
@@ -22,23 +23,24 @@ import net.data.ProblemInfoList;
 import java.util.ArrayList;
 
 import layout.MyContentFragment;
-import layout.MyListFragment;
 
 public class MainActivity extends AppCompatActivity implements ViewHandler {
 
     private LinearLayout list_main;
     private ViewPager content_main;
     private TabLayout tab_bottom;
-    private MyListFragment noticeList;
+    private ListFragment noticeList_fragment;
     private MyContentFragment noticeContent;
-    private MyListFragment problemList;
+    private ListFragment problemList_fragment;
     private MyContentFragment problemContent;
-    private MyListFragment contestList;
+    private ListFragment contestList_fragment;
     private MyContentFragment contestContent;
-    private FragmentTransaction transaction;
     private NetData netData;
-    private ProblemInfoList problemInfoList;
-    private ContestInfoList contestInfoList;
+    private ArrayList<String> problemList_string;
+    private ArrayList<String> contestList_string;
+    private ArrayAdapter<String> problemAdapter;
+    private ArrayAdapter<String> contestAdapter;
+    private FragmentManager fragmentManager;
 
 
 
@@ -47,34 +49,38 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        problemList_string = new ArrayList<>(20);
+        contestList_string = new ArrayList<>(20);
+        problemAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, problemList_string);
+        contestAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contestList_string);
         netData = new NetData(this);
         netData.getProblemList(1,this);
         netData.getContestList(1,this);
+        fragmentManager = getFragmentManager();
+        setSupportActionBar(toolbar);
         initViews();
-        transaction = getFragmentManager().beginTransaction();
-
     }
 
     private void initViews(){
         list_main = (LinearLayout)findViewById(R.id.list_main);
         content_main = (ViewPager)findViewById(R.id.content_main);
+
         content_main.addOnPageChangeListener(new ViewPager.OnPageChangeListener(){
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             @Override
             public void onPageSelected(int position) {
                 switch (position){
-                    case 0: setSelection(0);break;
-                    case 1: setSelection(1);break;
-                    case 2: setSelection(2);break;
+                    case 0: setSelectionList(0);break;
+                    case 1: setSelectionList(1);break;
+                    case 2: setSelectionList(2);break;
 //                    default: setSelection(3);
                 }
             }
             @Override
             public void onPageScrollStateChanged(int state) {}
         });
-        content_main.setAdapter(new FragmentPagerAdapter(getFragmentManager()) {
+        content_main.setAdapter(new FragmentPagerAdapter(fragmentManager) {
             @Override
             public Fragment getItem(int position) {
                 switch (position){
@@ -110,81 +116,70 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
 //        tab_bottom.getTabAt(3).setIcon(R.drawable.ic_action_user);
     }
 
-    private void setSelection(int position) {
+    private void setSelectionList(final int position) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         hideListFragment();
         switch (position){
             case 0:
-                if (noticeList == null) {
-                    noticeList = new MyListFragment();
-                    transaction.add(R.id.list_main,noticeList);
+                if (noticeList_fragment == null) {
+                    noticeList_fragment = new ListFragment();
+                    transaction.add(R.id.list_main,noticeList_fragment);
                 }else {
-                    transaction.show(noticeList);
+                    transaction.show(noticeList_fragment);
                 }
                 break;
             case 1:
-                if (problemList == null) {
-                    problemList = new MyListFragment();
-                    problemList.setListAdapter(getArrayAdapter(position));
-                    Log.d("321","process");
-                    transaction.add(R.id.list_main,problemList);
+                if (problemList_fragment == null) {
+                    problemList_fragment = new ListFragment();
+                    problemList_fragment.setListAdapter(problemAdapter);
+                    transaction.add(R.id.list_main,problemList_fragment);
                 }else {
-                    transaction.show(problemList);
+                    transaction.show(problemList_fragment);
                 }
                 break;
             case 2:
-                if (contestList == null) {
-                    contestList = new MyListFragment();
-                    contestList.setListAdapter(getArrayAdapter(position));
-                    transaction.add(R.id.list_main,contestList);
+                if (contestList_fragment == null) {
+                    contestList_fragment = new ListFragment();
+                    contestList_fragment.setListAdapter(contestAdapter);
+                    transaction.add(R.id.list_main,contestList_fragment);
                 }else {
-                    transaction.show(contestList);
+                    transaction.show(contestList_fragment);
                 }
                 break;
         }
+        transaction.commit();
     }
 
     private void hideListFragment(){
-        if (noticeList != null) {
-            transaction.hide(noticeList);
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (noticeList_fragment != null) {
+            transaction.hide(noticeList_fragment);
         }
-        if (problemList != null) {
-            transaction.hide(problemList);
+        if (problemList_fragment != null) {
+            transaction.hide(problemList_fragment);
         }
-        if (contestList != null) {
-            transaction.hide(contestList);
+        if (contestList_fragment != null) {
+            transaction.hide(contestList_fragment);
         }
+        transaction.commit();
     }
 
     @Override
     public void showProblemList(ProblemInfoList problemInfoList) {
-        this.problemInfoList = problemInfoList;
+        ArrayList<ProblemInfo> InfoList = problemInfoList.getProblemInfo();
+        for (ProblemInfo tem : InfoList) {
+            problemList_string.add(tem.title);
+        }
+        problemAdapter.notifyDataSetChanged();
+
     }
 
     @Override
     public void showContestList(ContestInfoList contestInfoList) {
-        this.contestInfoList = contestInfoList;
-    }
-
-    private ArrayAdapter<String> getArrayAdapter(int position) {
-        switch (position) {
-            case 0:break;
-            case 1:
-                ArrayList<ProblemInfo> problemList = problemInfoList.getProblemInfo();
-                ArrayList<String> arraylist = new ArrayList<>(problemList.size());
-                for (ProblemInfo tem: problemList) {
-                    arraylist.add(tem.title);
-                    Log.d("123",tem.title);
-                }
-                return new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arraylist);
-            case 2:
-                ArrayList<ContestInfo> contestList = contestInfoList.getContestInfo();
-                ArrayList<String> arraylist1 = new ArrayList<>(contestList.size());
-                for (ContestInfo tem : contestList) {
-                    arraylist1.add(tem.title);
-                }
-                return new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arraylist1);
-            default:return null;
+        ArrayList<ContestInfo> InfoList = contestInfoList.getContestInfo();
+        for (ContestInfo tem : InfoList) {
+            contestList_string.add(tem.title);
         }
-        return null;
+        contestAdapter.notifyDataSetChanged();
     }
 }
