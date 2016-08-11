@@ -11,5 +11,5 @@ import net.data.ProblemInfoList;
 public interface ViewHandler {
     void showProblemList(ProblemInfoList problemInfoList);
     void showContestList(ContestInfoList contestInfoList);
-    void showArticleList(ArticleInfoList aritcleInfoList);
+    void showArticleList(ArticleInfoList articleInfoList);
 }

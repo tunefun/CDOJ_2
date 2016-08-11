@@ -35,7 +35,7 @@ public class ProblemInfoList {
     public ProblemInfo getProblemInfo(int i){
         return list.get(i);
     }
-    public ArrayList getProblemInfo(){
+    public ArrayList<ProblemInfo> getProblemInfo(){
         return list;
     }
 }
