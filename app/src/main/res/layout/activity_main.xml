@@ -38,8 +38,8 @@
                 android:layout_height="match_parent"
                 android:background="@color/content_background" />
         </LinearLayout>
-
     </LinearLayout>
+
     <android.support.design.widget.TabLayout
         android:id="@+id/tablayout_bottom"
         android:layout_width="match_parent"
