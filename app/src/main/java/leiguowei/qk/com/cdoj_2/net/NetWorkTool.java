@@ -1,4 +1,4 @@
-package net;
+package leiguowei.qk.com.cdoj_2.net;
 
 import android.util.Log;
 
@@ -8,8 +8,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by lenovo on 2016/8/7.

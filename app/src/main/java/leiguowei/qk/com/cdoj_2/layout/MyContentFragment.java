@@ -1,4 +1,4 @@
-package layout;
+package leiguowei.qk.com.cdoj_2.layout;
 
 import android.app.Fragment;
 import android.os.Bundle;

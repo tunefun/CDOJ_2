@@ -1,4 +1,6 @@
-package net.data;
+package leiguowei.qk.com.cdoj_2.net.data;
+
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,11 +11,12 @@ import java.util.ArrayList;
 /**
  * Created by qwe on 16-8-10.
  */
-public class InfoList <T>{
-    public ArrayList<T> list = new ArrayList<>(20);
+public class ArticleInfoList {
+    public ArrayList<ArticleInfo> list = new ArrayList<>(20);
     public boolean result = false;
     public PageInfo pageInfo;
-    public InfoList(String json){
+    public ArticleInfoList(String json){
+        Log.d("TAG", "ArticleInfoList: " + json);
         if (json == null) {
             return;
         }
@@ -23,15 +26,14 @@ public class InfoList <T>{
             pageInfo = new PageInfo(msg.getJSONObject("pageInfo"));
             JSONArray list0 = msg.getJSONArray("list");
             for (int i = 0; i < list0.length(); i++) {
-//                list.add(T.toString());
-                        //Object(list0.getJSONObject(i)));
+                list.add(new ArticleInfo(list0.getJSONObject(i)));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
-    public ArrayList getArticleInfoList() {
+    public ArrayList<ArticleInfo> getArticleInfoList() {
         return list;
     }
 }

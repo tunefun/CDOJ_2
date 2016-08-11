@@ -1,4 +1,4 @@
-package net.data;
+package leiguowei.qk.com.cdoj_2.net.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;

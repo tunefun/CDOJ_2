@@ -12,19 +12,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.LinearLayout;
 
-import net.NetData;
-import net.ViewHandler;
-import net.data.ArticleInfo;
-import net.data.ArticleInfoList;
-import net.data.ContestInfo;
-import net.data.ContestInfoList;
-import net.data.ProblemInfo;
-import net.data.ProblemInfoList;
+import leiguowei.qk.com.cdoj_2.net.NetData;
+import leiguowei.qk.com.cdoj_2.net.ViewHandler;
+import leiguowei.qk.com.cdoj_2.net.data.ArticleInfo;
+import leiguowei.qk.com.cdoj_2.net.data.ArticleInfoList;
+import leiguowei.qk.com.cdoj_2.net.data.ContestInfo;
+import leiguowei.qk.com.cdoj_2.net.data.ContestInfoList;
+import leiguowei.qk.com.cdoj_2.net.data.ProblemInfo;
+import leiguowei.qk.com.cdoj_2.net.data.ProblemInfoList;
 
 import java.util.ArrayList;
 
-import layout.MyContentFragment;
-import layout.MyListFragment;
+import leiguowei.qk.com.cdoj_2.layout.MyContentFragment;
+import leiguowei.qk.com.cdoj_2.layout.MyListFragment;
 
 public class MainActivity extends AppCompatActivity implements ViewHandler {
 
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
     }
 
     @Override
-    public void showArticleList(ArticleInfoList articleInfoList) {
+    public void showArticleList(ArticleInfoList articleInfoList, String article) {
         ArrayList<ArticleInfo> infoList = articleInfoList.getArticleInfoList();
         for (ArticleInfo tem : infoList) {
             articleList_fragment.addToList(tem.title);
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
     }
 
     @Override
-    public void showProblemList(ProblemInfoList problemInfoList) {
+    public void showProblemList(ProblemInfoList problemInfoList, String problem) {
         ArrayList<ProblemInfo> infoList = problemInfoList.getProblemInfo();
         for (ProblemInfo tem : infoList) {
             problemList_fragment.addToList(tem.title);
@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
     }
 
     @Override
-    public void showContestList(ContestInfoList contestInfoList) {
+    public void showContestList(ContestInfoList contestInfoList, String contest, ArrayList prob_list) {
         ArrayList<ContestInfo> infoList = contestInfoList.getContestInfo();
         for (ContestInfo tem : infoList) {
             contestList_fragment.addToList(tem.title);

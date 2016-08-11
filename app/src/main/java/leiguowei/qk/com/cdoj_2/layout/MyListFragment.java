@@ -1,9 +1,8 @@
-package layout;
+package leiguowei.qk.com.cdoj_2.layout;
 
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;

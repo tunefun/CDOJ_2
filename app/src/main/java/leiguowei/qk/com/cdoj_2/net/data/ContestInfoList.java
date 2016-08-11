@@ -1,6 +1,4 @@
-package net.data;
-
-import android.util.Log;
+package leiguowei.qk.com.cdoj_2.net.data;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,11 +9,11 @@ import java.util.ArrayList;
 /**
  * Created by lenovo on 2016/8/8.
  */
-public class ProblemInfoList {
-    ArrayList<ProblemInfo> list = new ArrayList<>(20);
-    public boolean result = false;
+public class ContestInfoList {
+    public boolean result;
+    public ArrayList<ContestInfo> list = new ArrayList<>(20);
     PageInfo pageInfo;
-    public ProblemInfoList(String json){
+    public ContestInfoList(String json){
         if (json == null) {
             return;
         }
@@ -25,17 +23,14 @@ public class ProblemInfoList {
             pageInfo = new PageInfo(msg.getJSONObject("pageInfo"));
             JSONArray list0 = msg.getJSONArray("list");
             for (int i = 0; i < list0.length(); i++) {
-                list.add(new ProblemInfo(list0.getJSONObject(i)));
+                list.add(new ContestInfo(list0.getJSONObject(i)));
             }
         } catch (JSONException e) {
             result = false;
             e.printStackTrace();
         }
     }
-    public ProblemInfo getProblemInfo(int i){
-        return list.get(i);
-    }
-    public ArrayList<ProblemInfo> getProblemInfo(){
+    public ArrayList<ContestInfo> getContestInfo(){
         return list;
     }
 }
