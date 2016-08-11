@@ -20,7 +20,8 @@ public class NetData {
     Activity activity;
     final static String severAddress = "http://acm.uestc.edu.cn",
             problemListUrl = severAddress + "/problem/search",
-            contestListUrl = severAddress + "/contest/search";
+            contestListUrl = severAddress + "/contest/search",
+            articleListUrl = severAddress + "/article/search";
     public NetData(Activity activity){
         this.activity = activity;
     }
@@ -78,7 +79,7 @@ public class NetData {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                String result = NetWorkTool.post(problemListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                String result = NetWorkTool.post(articleListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
                 final ArticleInfoList articleInfoList = new ArticleInfoList(result);
                 activity.runOnUiThread(new Runnable() {
                     @Override

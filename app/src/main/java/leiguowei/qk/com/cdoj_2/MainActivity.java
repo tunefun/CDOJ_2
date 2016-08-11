@@ -1,20 +1,21 @@
 package leiguowei.qk.com.cdoj_2;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.ListFragment;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.TabLayout;
-import android.app.Fragment;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
 import net.NetData;
 import net.ViewHandler;
+import net.data.ArticleInfo;
+import net.data.ArticleInfoList;
 import net.data.ContestInfo;
 import net.data.ContestInfoList;
 import net.data.ProblemInfo;
@@ -23,23 +24,18 @@ import net.data.ProblemInfoList;
 import java.util.ArrayList;
 
 import layout.MyContentFragment;
+import layout.MyListFragment;
 
 public class MainActivity extends AppCompatActivity implements ViewHandler {
 
     private LinearLayout list_main;
     private ViewPager content_main;
     private TabLayout tab_bottom;
-    private ListFragment noticeList_fragment;
-    private MyContentFragment noticeContent;
-    private ListFragment problemList_fragment;
-    private MyContentFragment problemContent;
-    private ListFragment contestList_fragment;
-    private MyContentFragment contestContent;
+    private MyListFragment articleList_fragment;
+    private MyListFragment problemList_fragment;
+    private MyListFragment contestList_fragment;
+    private MyContentFragment[] content_fragment = new MyContentFragment[3];
     private NetData netData;
-    private ArrayList<String> problemList_string;
-    private ArrayList<String> contestList_string;
-    private ArrayAdapter<String> problemAdapter;
-    private ArrayAdapter<String> contestAdapter;
     private FragmentManager fragmentManager;
 
 
@@ -49,22 +45,32 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        problemList_string = new ArrayList<>(20);
-        contestList_string = new ArrayList<>(20);
-        problemAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, problemList_string);
-        contestAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contestList_string);
-        netData = new NetData(this);
-        netData.getProblemList(1,this);
-        netData.getContestList(1,this);
-        fragmentManager = getFragmentManager();
         setSupportActionBar(toolbar);
-        initViews();
+        netData = new NetData(this);
+        fragmentManager = getFragmentManager();
+
+        if (savedInstanceState == null){
+            for (int i = 0; i != 3; ++i) {
+                content_fragment[i] = new MyContentFragment();
+            }
+            initViewsFirst();
+        }else {
+            for (int i = 0; i != 3; ++i) {
+                content_fragment[i] = (MyContentFragment)fragmentManager.findFragmentByTag(savedInstanceState.getString("content_fragment"+i));
+            }
+            initViews();
+        }
     }
 
-    private void initViews(){
-        list_main = (LinearLayout)findViewById(R.id.list_main);
-        content_main = (ViewPager)findViewById(R.id.content_main);
+    private void initViews() {
+        articleList_fragment = (MyListFragment) fragmentManager.findFragmentByTag("articleList");
+        problemList_fragment = (MyListFragment) fragmentManager.findFragmentByTag("problemList");
+        contestList_fragment = (MyListFragment) fragmentManager.findFragmentByTag("contestList");
+        initViewsFirst();
+    }
 
+    private void initViewsFirst(){
+        content_main = (ViewPager)findViewById(R.id.content_main);
         content_main.addOnPageChangeListener(new ViewPager.OnPageChangeListener(){
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
@@ -85,29 +91,22 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
             public Fragment getItem(int position) {
                 switch (position){
                     case 0:
-                        if (noticeContent == null) {
-                            noticeContent = new MyContentFragment();
-                        }
-                        return noticeContent;
+                        return content_fragment[0];
                     case 1:
-                        if (problemContent == null) {
-                            problemContent = new MyContentFragment();
-                        }
-                        return problemContent;
+                        return content_fragment[1];
                     case 2:
-                        if (contestContent == null) {
-                            contestContent = new MyContentFragment();
-                        }
-                        return contestContent;
+                        return content_fragment[2];
+                    default:
+                        return null;
                 }
-                return null;
             }
-
             @Override
             public int getCount() {
                 return 3;
             }
         });
+
+        setDefaultFragment();
         tab_bottom = (TabLayout)findViewById(R.id.tablayout_bottom);
         tab_bottom.setupWithViewPager(content_main);
         tab_bottom.getTabAt(0).setIcon(R.drawable.ic_action_home);
@@ -116,33 +115,44 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
 //        tab_bottom.getTabAt(3).setIcon(R.drawable.ic_action_user);
     }
 
+    private void setDefaultFragment() {
+        if (articleList_fragment == null) {
+            articleList_fragment = (new MyListFragment()).createAdapter(this);
+            netData.getAriticleList(1,this);
+        }
+        if (!articleList_fragment.isAdded()){
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.add(R.id.list_main,articleList_fragment,"articleList");
+            transaction.commit();
+        }
+    }
+
     private void setSelectionList(final int position) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        hideListFragment();
+        hideMyListFragment();
         switch (position){
             case 0:
-                if (noticeList_fragment == null) {
-                    noticeList_fragment = new ListFragment();
-                    transaction.add(R.id.list_main,noticeList_fragment);
-                }else {
-                    transaction.show(noticeList_fragment);
-                }
+                transaction.show(articleList_fragment);
                 break;
             case 1:
                 if (problemList_fragment == null) {
-                    problemList_fragment = new ListFragment();
-                    problemList_fragment.setListAdapter(problemAdapter);
-                    transaction.add(R.id.list_main,problemList_fragment);
+                    problemList_fragment = (new MyListFragment()).createAdapter(this);
+                    netData.getProblemList(1,this);
                 }else {
+                    if (!problemList_fragment.isAdded()){
+                        transaction.add(R.id.list_main,problemList_fragment,"problemList");
+                    }
                     transaction.show(problemList_fragment);
                 }
                 break;
             case 2:
                 if (contestList_fragment == null) {
-                    contestList_fragment = new ListFragment();
-                    contestList_fragment.setListAdapter(contestAdapter);
-                    transaction.add(R.id.list_main,contestList_fragment);
+                    contestList_fragment = (new MyListFragment()).createAdapter(this);
+                    netData.getContestList(1,this);
                 }else {
+                    if (!contestList_fragment.isAdded()) {
+                        transaction.add(R.id.list_main,contestList_fragment,"contestList");
+                    }
                     transaction.show(contestList_fragment);
                 }
                 break;
@@ -150,10 +160,10 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
         transaction.commit();
     }
 
-    private void hideListFragment(){
+    private void hideMyListFragment(){
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if (noticeList_fragment != null) {
-            transaction.hide(noticeList_fragment);
+        if (articleList_fragment != null) {
+            transaction.hide(articleList_fragment);
         }
         if (problemList_fragment != null) {
             transaction.hide(problemList_fragment);
@@ -165,21 +175,37 @@ public class MainActivity extends AppCompatActivity implements ViewHandler {
     }
 
     @Override
-    public void showProblemList(ProblemInfoList problemInfoList) {
-        ArrayList<ProblemInfo> InfoList = problemInfoList.getProblemInfo();
-        for (ProblemInfo tem : InfoList) {
-            problemList_string.add(tem.title);
+    public void showArticleList(ArticleInfoList articleInfoList) {
+        ArrayList<ArticleInfo> infoList = articleInfoList.getArticleInfoList();
+        for (ArticleInfo tem : infoList) {
+            articleList_fragment.addToList(tem.title);
         }
-        problemAdapter.notifyDataSetChanged();
+        articleList_fragment.notifydataSetChanged();
+    }
 
+    @Override
+    public void showProblemList(ProblemInfoList problemInfoList) {
+        ArrayList<ProblemInfo> infoList = problemInfoList.getProblemInfo();
+        for (ProblemInfo tem : infoList) {
+            problemList_fragment.addToList(tem.title);
+        }
+        problemList_fragment.notifydataSetChanged();
     }
 
     @Override
     public void showContestList(ContestInfoList contestInfoList) {
-        ArrayList<ContestInfo> InfoList = contestInfoList.getContestInfo();
-        for (ContestInfo tem : InfoList) {
-            contestList_string.add(tem.title);
+        ArrayList<ContestInfo> infoList = contestInfoList.getContestInfo();
+        for (ContestInfo tem : infoList) {
+            contestList_fragment.addToList(tem.title);
         }
-        contestAdapter.notifyDataSetChanged();
+        contestList_fragment.notifydataSetChanged();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        for (int i = 0; i != 3; ++i) {
+            outState.putString("content_fragment"+i,content_fragment[i].getTag());
+        }
     }
 }
