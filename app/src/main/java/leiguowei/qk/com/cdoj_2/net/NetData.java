@@ -1,6 +1,7 @@
 package leiguowei.qk.com.cdoj_2.net;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +28,7 @@ public class NetData {
     public NetData(Activity activity){
         this.activity = activity;
     }
-    public void getContestList(final int page, final ViewHandler viewHandler){
+    public void getContestList0(final int page, final ViewHandler viewHandler){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -42,14 +43,14 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showContestList(contestInfoList, null, null);
+                        viewHandler.show(ViewHandler.CONTEST_LIST, contestInfoList);
                     }
                 });
 
             }
         }).start();
     }
-    public void getProblemList(final int page, final ViewHandler viewHandler){
+    public void getProblemList0(final int page, final ViewHandler viewHandler){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -64,14 +65,14 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showProblemList(problemInfoList, null);
+                        viewHandler.show(ViewHandler.PROBLEM_lIST, problemInfoList);
                     }
                 });
 
             }
         }).start();
     }
-    public void getArticleList(final int page, final ViewHandler viewHandler){
+    public void getArticleList0(final int page, final ViewHandler viewHandler){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -86,12 +87,73 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showArticleList(articleInfoList, null);
+                        viewHandler.show(ViewHandler.ARTICLE_LIST, articleInfoList);
                     }
                 });
 
             }
         }).start();
+    }
+    //
+//
+//
+//
+    public static void getProblemList(final int page, final ViewHandler viewHandler){
+        new AsyncTask<Void, Void, Object>(){
+
+            @Override
+            protected Object doInBackground(Void... voids) {
+                String p = "";
+                try {
+                    p = new JSONObject().put("currentPage", page).put("orderAsc", "true").put("orderFields", "id").toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String result = NetWorkTool.post(problemListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                return new ProblemInfoList(result);
+            }
+            protected void onPostExecute(Object object) {
+                viewHandler.show(ViewHandler.PROBLEM_lIST, object);
+            }
+        }.execute();
+    }
+    public static void getContestList(final int page, final ViewHandler viewHandler){
+        new AsyncTask<Void, Void, Object>(){
+
+            @Override
+            protected Object doInBackground(Void... voids) {
+                String p = "";
+                try {
+                    p = new JSONObject().put("currentPage", page).put("orderAsc", "true").put("orderFields", "id").toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String result = NetWorkTool.post(contestListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                return new ContestInfoList(result);
+            }
+            protected void onPostExecute(Object object) {
+                viewHandler.show(ViewHandler.CONTEST_LIST, object);
+            }
+        }.execute();
+    }
+    public static void getArticleList(final int page, final ViewHandler viewHandler){
+        new AsyncTask<Void, Void, Object>(){
+
+            @Override
+            protected Object doInBackground(Void... voids) {
+                String p = "";
+                try {
+                    p = new JSONObject().put("currentPage", page).put("orderAsc", "false").put("orderFields", "id").toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String result = NetWorkTool.post(articleListUrl, p);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                return new ArticleInfoList(result);
+            }
+            protected void onPostExecute(Object object) {
+                viewHandler.show(ViewHandler.ARTICLE_LIST, object);
+            }
+        }.execute();
     }
     public void getArticleDetail(final int id, final ViewHandler viewHandler){
         new Thread(new Runnable() {
@@ -109,18 +171,18 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showArticleList(null, article);
+                        viewHandler.show(ViewHandler.ARTICLE_DETAIL, article);
                     }
                 });
 
             }
         }).start();
     }
-    public void getProblemDetail(final int id, final ViewHandler viewHandler){
+    public void getContestDetail(final int id, final ViewHandler viewHandler){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String result = NetWorkTool.get(problemDetailUrl + id);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                String result = NetWorkTool.get(contestDetailUrl + id);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
                 String r = null;
                 final ArrayList<String> list = new ArrayList<>(20);
                 try {
@@ -138,18 +200,18 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showContestList(null, contest, list);
+                        viewHandler.show(ViewHandler.CONTEST_DETAIL, contest);
                     }
                 });
 
             }
         }).start();
     }
-    public void getContestDetail(final int id, final ViewHandler viewHandler){
+    public void getProblemDetail(final int id, final ViewHandler viewHandler){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String result = NetWorkTool.get(contestDetailUrl + id);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
+                String result = NetWorkTool.get(problemDetailUrl + id);// "{'currentPage':" + page + ",'orderAsc':'true'" + "'orderFields':'id'}");
                 String r = null;
                 try {
                     r = new JSONObject(result).getJSONObject("problem").toString();
@@ -161,7 +223,7 @@ public class NetData {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        viewHandler.showProblemList(null, problem);
+                        viewHandler.show(ViewHandler.PROBLEM_DETAIL, problem);
                     }
                 });
 
